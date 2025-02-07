@@ -1,0 +1,53 @@
+#include <SPI.h>
+#include <MFRC522.h>
+
+#define SS_PIN 10  // Slave Select pin
+#define RST_PIN 9  // Reset pin
+
+MFRC522 rfid(SS_PIN, RST_PIN);  // Create MFRC522 instance
+MFRC522::MIFARE_Key key;        // Create a MIFARE key instance
+
+byte block = 2;  // Block to write data (2-15 recommended)
+byte dataToWrite[16] = "N:name A:21 R:P"; // 16 bytes max per block
+
+void setup() {
+    Serial.begin(9600); // Start serial monitor
+    SPI.begin();        // Start SPI bus
+    rfid.PCD_Init();    // Initialize RFID module
+
+    // Initialize the key with default key (0xFF, used for most RFID cards)
+    for (byte i = 0; i < 6; i++) {
+        key.keyByte[i] = 0xFF;
+    }
+
+    Serial.println("Place your RFID tag near the reader to write...");
+}
+
+void loop() {
+    // Check if a new RFID card is present
+    if (!rfid.PICC_IsNewCardPresent()) {
+        return;
+    }
+
+    // Check if we can read the card
+    if (!rfid.PICC_ReadCardSerial()) {
+        return;
+    }
+
+    Serial.println("Card detected! Writing data...");
+
+    // Authenticate the block before writing
+    if (rfid.PCD_Authenticate(MFRC522::PICC_CMD_MF_AUTH_KEY_A, block, &key, &(rfid.uid)) == MFRC522::STATUS_OK) {
+        if (rfid.MIFARE_Write(block, dataToWrite, 16) == MFRC522::STATUS_OK) {
+            Serial.println("Data written successfully!");
+        } else {
+            Serial.println("Failed to write data!");
+        }
+    } else {
+        Serial.println("Authentication failed!");
+    }
+
+    rfid.PICC_HaltA();      // Halt communication with the card
+    rfid.PCD_StopCrypto1(); // Stop encryption
+    delay(2000);            // Wait before trying again
+}
