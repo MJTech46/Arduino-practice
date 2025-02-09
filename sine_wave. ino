@@ -1,0 +1,30 @@
+// Pin where the LED is connected
+const int ledPin = 9; // Must be a PWM-capable pin (3, 5, 6, 9, 10, or 11 on most Arduino boards)
+
+// Variables for sine wave generation
+const int numPoints = 100; // Number of points in one sine wave cycle
+const float pi = 3.14159; // Value of pi
+int sineWave[numPoints]; // Array to store sine wave values
+
+void setup() {
+  // Initialize the LED pin as an output
+  pinMode(ledPin, OUTPUT);
+
+  // Generate the sine wave values
+  for (int i = 0; i < numPoints; i++) {
+    // Calculate the sine value (ranges from -1 to 1)
+    float radian = (2 * pi * i) / numPoints; // Convert index to radians
+    float sineValue = sin(radian); // Get sine value
+
+    // Map the sine value (from -1 to 1) to PWM range (0 to 255)
+    sineWave[i] = (int)(127.5 + 127.5 * sineValue); // Scale and shift to 0-255
+  }
+}
+
+void loop() {
+  // Loop through the sine wave values and write them to the LED
+  for (int i = 0; i < numPoints; i++) {
+    analogWrite(ledPin, sineWave[i]); // Set LED brightness
+    delay(10); // Adjust delay to control the frequency of the sine wave
+  }
+}
