@@ -1,0 +1,19 @@
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+
+// Initialize the LCD (0x27 is a common I2C address; try 0x3F if 0x27 doesn't work)
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+void setup() {
+    lcd.init();      // Initialize the LCD
+    lcd.backlight(); // Turn on backlight
+    lcd.setCursor(0, 0); // Set cursor to the first column of the first row
+    lcd.print("Hello, Arduino!"); // Display text
+
+    lcd.setCursor(0, 1); // Move to the second row
+    lcd.print("LCD Display");
+}
+
+void loop() {
+    // Nothing needed in the loop for static text
+}
